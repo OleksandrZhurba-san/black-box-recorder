@@ -20,15 +20,6 @@ export function stripTags(clean: string): string {
   return result;
 }
 
-//61 to scubather[GENOS](Nightmare) - Dark Blood Small EMP Smartbomb - Hits
-function parseDamagePayload(clean: string): [blob: string, source: string, rest: string] | null {
-  const words = clean.split(" ");
-  const startIndex = clean.indexOf(words[2] ?? "");
-  const [blob, source, rest] =
-    clean.slice(startIndex).split(" - ") as [string, string, string];
-
-  return [blob, source, rest];
-}
 
 //Malekith the Accursed[TRY1N](Dramiel) 
 function parseNameFromLabel(labels: string) {
@@ -46,6 +37,30 @@ function detectActivity(clean: string): ActivityType | null {
   if (clean.includes("remote capacitor transmitted")) return "capTransfer";
 
   return "damage";
+}
+
+//61 to scubather[GENOS](Nightmare) - Dark Blood Small EMP Smartbomb - Hits
+function parseDamagePayload(payload: string): [blob: string, source: string, rest: string] | null {
+  const words = payload.split(" ");
+  const startIndex = payload.indexOf(words[2] ?? "");
+  const [blob, source, rest] =
+    payload.slice(startIndex).split(" - ") as [string, string, string];
+
+  return [blob, source, rest];
+}
+
+// [ 2025.11.09 17:43:42 ] (combat) 0 remote armor repaired to  Nightmare [HYDRA] [GENOS] [scubather] - - Perun Heavy Mutadaptive Remote Armor Repairer
+function parseRemotePayload(payload: string, direction: string): [blob: string, source: string] | null {
+  const endIndex = payload.lastIndexOf(" - ");
+  if (endIndex === -1) return null;
+
+  let startIndex = 0;
+  if (direction === "given") startIndex = payload.indexOf("to") + 2;
+  if (direction === "taken") startIndex = payload.indexOf("by") + 2;
+
+  const blob = payload.slice(startIndex, endIndex).trim();
+  const source = payload.slice(endIndex + 3).trim();
+  return [blob, source];
 }
 
 function detectDirection(clean: string, activity: ActivityType | null): Direction | null {
@@ -126,11 +141,17 @@ export function parseLine(line: string): CombatEvent | null {
       break;
     }
     case "repair": {
+      const parts = parseRemotePayload(payload, direction);
+      if (!parts) return null;
+      const [blob, source] = parts;
+      sourceName = source;
       amount = Number(payload.split(" ")[0]);
+
       break;
     }
     case "neutralize": {
       amount = Number(payload.split(" ")[0]);
+      sourceName = pa
       break;
     }
     case "capTransfer": {

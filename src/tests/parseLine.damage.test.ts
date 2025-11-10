@@ -1,7 +1,7 @@
 import { parseLine } from "@/core/parse/parseLine";
-import { CombatEvent } from "@/core/types";
-import { expect, test } from "bun:test";
+import { test } from "bun:test";
 import { expectCombatEvent } from "@/tests/utils";
+import { repairFrom, repairTo } from "@/tests/testData";
 
 const cases = [
   {
@@ -29,7 +29,27 @@ const cases = [
       hitType: "Hits",
       ship: "Zarmazd",
     }
-  }
+  },
+  {
+    name: "parse remote repair given line",
+    line: repairTo,
+    expected: {
+      activity: "repair",
+      direction: "given",
+      amount: 0,
+      sourceName: "Perun Heavy Mutadaptive Remote Armor Repairer",
+    }
+  },
+  {
+    name: "parse remote repair taken line",
+    line: repairFrom,
+    expected: {
+      activity: "repair",
+      direction: "taken",
+      amount: 0,
+      sourceName: "Heavy Armor Maintenance Bot II",
+    }
+  },
 ] as const;
 
 for (const c of cases) {
