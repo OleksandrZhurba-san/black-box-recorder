@@ -19,6 +19,22 @@ export function stripTags(clean: string): string {
   }
   return result;
 }
+
+//61 to scubather[GENOS](Nightmare) - Dark Blood Small EMP Smartbomb - Hits
+function parseDamagePayload(clean: string): [blob: string, source: string, rest: string] | null {
+  const words = clean.split(" ");
+  const startIndex = clean.indexOf(words[2] ?? "");
+  const [blob, source, rest] =
+    clean.slice(startIndex).split(" - ") as [string, string, string];
+
+  return [blob, source, rest];
+}
+
+//Malekith the Accursed[TRY1N](Dramiel) 
+function parseLabelBlob(labels: string) {
+  return labels.slice(0,labels.indexOf("[")).trim();
+}
+
 function detectActivity(clean: string): ActivityType | null {
   if (clean.includes("energy neutralized")) return "neutralize";
   if (clean.includes("remote armor repaired")) return "repair";
@@ -77,12 +93,30 @@ export function parseLine(line: string): CombatEvent | null {
 
   // extract amount number
   const activity: ActivityType | null = detectActivity(payload);
+
   const direction = detectDirection(payload, activity);
   if (!direction) return null;
+
   let amount = 0;
+  let sourceName = "";
+  let hitType = "";
+  let pilotName = "";
+  let targetName = "";
+
   switch (activity) {
     case "damage": {
       amount = Number(payload.split(" ")[0]);
+      const parts = parseDamagePayload(payload);
+      if (!parts) return null;
+      const [blob, source, rest] = parts;
+      sourceName = source.trim();
+      hitType = rest.trim();
+      if(direction === "given") {
+        targetName = parseLabelBlob(blob);
+      }
+      if(direction === "taken") {
+        pilotName = parseLabelBlob(blob);
+      }
       break;
     }
     case "repair": {
@@ -108,7 +142,11 @@ export function parseLine(line: string): CombatEvent | null {
     activity,
     direction,
     amount,
-    logRaw: payload
+    sourceName,
+    hitType,
+    pilotName,
+    targetName,
+    logRaw: payload,
   };
 
 }

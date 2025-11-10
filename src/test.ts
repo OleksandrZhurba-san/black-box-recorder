@@ -2,7 +2,7 @@ import { CombatEvent } from "@/core/types";
 import { parseLine  } from "@/core/parse/parseLine";
 
 
-const dmgTo = "[ 2025.11.09 17:46:26 ] (combat) <color=0xff00ffff><b>61</b> <color=0x77ffffff><font size=10>to</font> <b><color=0xffffffff>scubather[GENOS](Nightmare)</b><font size=10><color=0x77ffffff> - Dark Blood Small EMP Smartbomb - Hits";
+const dmgTo = "[ 2025.11.10 16:17:44 ] (combat) <color=0xff00ffff><b>29</b> <color=0x77ffffff><font size=10>to</font> <b><color=0xffffffff>Malekith the Accursed[TRY1N](Dramiel)</b><font size=10><color=0x77ffffff> - Imperial Navy Acolyte - Penetrates";
 
 const dmgFrom = "[ 2025.11.09 17:46:26 ] (combat) <color=0xffcc0000><b>61</b> <color=0x77ffffff><font size=10>from</font> <b><color=0xffffffff>Skithblatnir[GENOS](Zarmazd)</b><font size=10><color=0x77ffffff> - Dark Blood Small EMP Smartbomb - Hits";
 
@@ -21,3 +21,6 @@ console.log("Neuts From: ", parseLine((neutFrom)));
 console.log("Reps To: ", parseLine((repairTo)));
 console.log("Reps From: ", parseLine((repairFrom))); */
 console.log(parseLine(dmgTo));
+
+/* const labels = "Malekith the Accursed[TRY1N](Dramiel)";
+console.log(labels.slice(0,labels.indexOf("["))); */

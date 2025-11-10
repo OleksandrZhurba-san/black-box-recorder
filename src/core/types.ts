@@ -22,6 +22,7 @@ export interface CombatEvent {
 
   sourceName?: string;
   amount: number;
+  hitType?: string;
   unit?: "hp" | "gj";
 
   isDrone?: boolean;
