@@ -20,6 +20,7 @@ export interface CombatEvent {
   targetCorp?: string;
   targetAlliance?: string;
 
+  ship?: string;
   sourceName?: string;
   amount: number;
   hitType?: string;

@@ -31,8 +31,12 @@ function parseDamagePayload(clean: string): [blob: string, source: string, rest:
 }
 
 //Malekith the Accursed[TRY1N](Dramiel) 
-function parseLabelBlob(labels: string) {
-  return labels.slice(0,labels.indexOf("[")).trim();
+function parseNameFromLabel(labels: string) {
+  return labels.slice(0, labels.indexOf("[")).trim();
+}
+
+function parseShipFromLabel(labels: string) {
+  return labels.slice(labels.indexOf("(") + 1, labels.indexOf(")"));
 }
 
 function detectActivity(clean: string): ActivityType | null {
@@ -102,6 +106,7 @@ export function parseLine(line: string): CombatEvent | null {
   let hitType = "";
   let pilotName = "";
   let targetName = "";
+  let ship = "";
 
   switch (activity) {
     case "damage": {
@@ -111,12 +116,13 @@ export function parseLine(line: string): CombatEvent | null {
       const [blob, source, rest] = parts;
       sourceName = source.trim();
       hitType = rest.trim();
-      if(direction === "given") {
-        targetName = parseLabelBlob(blob);
+      if (direction === "given") {
+        targetName = parseNameFromLabel(blob);
       }
-      if(direction === "taken") {
-        pilotName = parseLabelBlob(blob);
+      if (direction === "taken") {
+        pilotName = parseNameFromLabel(blob);
       }
+      ship = parseShipFromLabel(blob);
       break;
     }
     case "repair": {
@@ -146,6 +152,7 @@ export function parseLine(line: string): CombatEvent | null {
     hitType,
     pilotName,
     targetName,
+    ship,
     logRaw: payload,
   };
 
