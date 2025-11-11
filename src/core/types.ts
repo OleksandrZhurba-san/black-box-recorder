@@ -9,6 +9,8 @@ export type Direction = "given" | "taken";
 export interface CombatEvent {
   timestamp: Date;
 
+  listenerName?: string;
+
   activity: ActivityType;
   direction: Direction;
 

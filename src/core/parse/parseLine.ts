@@ -20,6 +20,13 @@ export function stripTags(clean: string): string {
   return result;
 }
 
+export function parseListenerName(line: string): string | null {
+  const token = "Listener:";
+  const trimmed = line.trim();
+  if (!trimmed.startsWith(token)) return null;
+  const listenerName = trimmed.slice(token.length).trim();
+  return listenerName;
+}
 
 //Malekith the Accursed[TRY1N](Dramiel) 
 function parseNameFromLabel(labels: string) {
@@ -80,10 +87,16 @@ function detectDirection(clean: string, activity: ActivityType | null): Directio
       return "given";
   }
 
+  //cap transfer
+  if (activity === "capTransfer") {
+    if (clean.includes("transmitted by")) return "taken";
+    if (clean.includes("transmitted to")) return "given";
+  }
+
   return null;
 }
 
-export function parseLine(line: string): CombatEvent | null {
+export function parseLine(line: string, listenerName: string): CombatEvent | null {
 
   const clean = stripTags(line);
 
@@ -146,15 +159,17 @@ export function parseLine(line: string): CombatEvent | null {
       const [blob, source] = parts;
       sourceName = source;
       amount = Number(payload.split(" ")[0]);
-
       break;
     }
     case "neutralize": {
       amount = Number(payload.split(" ")[0]);
-      sourceName = pa
       break;
     }
     case "capTransfer": {
+      const parts = parseRemotePayload(payload, direction);
+      if (!parts) return null;
+      const [blob, source] = parts;
+      sourceName = source;
       amount = Number(payload.split(" ")[0]);
       break;
     }
@@ -174,6 +189,7 @@ export function parseLine(line: string): CombatEvent | null {
     pilotName,
     targetName,
     ship,
+    listenerName,
     logRaw: payload,
   };
 
