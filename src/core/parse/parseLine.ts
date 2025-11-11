@@ -180,6 +180,7 @@ export function parseLine(line: string, listenerName: string): CombatEvent | nul
       const [blob, source] = parts;
       sourceName = source;
       amount = Number(payload.split(" ")[0]);
+      if (direction === "given") pilotName = listenerName;
       break;
     }
     case "neutralize": {
