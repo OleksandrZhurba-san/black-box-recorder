@@ -1,6 +1,7 @@
-import { parseLine } from "@/core/parse/parseLine";
+import { parseLine, parseListenerName } from "@/core/parse/parseLine";
 import { expectCombatEvent } from "@/tests/utils";
 import { testData } from "@/tests/testData";
+import { expect, test } from "bun:test";
 
 const cases = [
   {
@@ -49,11 +50,37 @@ const cases = [
       sourceName: "Heavy Armor Maintenance Bot II",
     }
   },
+  {
+    name: "parse remote cap transfer taken line",
+    line: testData.capTransferFor,
+    expected: {
+      activity: "capTransfer",
+      direction: "taken",
+      amount: 10,
+      sourceName: "Centum A-Type Medium Remote Capacitor Transmitter",
+    }
+  },
+  {
+    name: "parse remote cap transfer given line",
+    line: testData.capTransferTo,
+    expected: {
+      activity: "capTransfer",
+      direction: "given",
+      amount: 550,
+      sourceName: "Centum A-Type Medium Remote Capacitor Transmitter",
+    }
+  },
 ] as const;
+
+test("parseListenerName scope: parse name from header of log file", () => {
+  const listenerName = parseListenerName(testData.listenerNameString)
+  expect(listenerName).not.toBeNull();
+  expect(listenerName).toBe(testData.listenerName);
+});
 
 for (const c of cases) {
   test(`parseLine scope: ${c.name}`, () => {
-    const event = parseLine(c.line);
+    const event = parseLine(c.line, "Melekith the Accursed");
     expectCombatEvent(event, c.expected);
   })
 }
