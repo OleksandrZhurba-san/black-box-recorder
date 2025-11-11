@@ -90,6 +90,26 @@ const cases = [
       sourceName: "Centum A-Type Medium Remote Capacitor Transmitter",
     }
   },
+  {
+    name: "parse incoming neutralize activity line",
+    line: testData.neutFrom,
+    expected: {
+      activity: "neutralize",
+      direction: "taken",
+      amount: 405,
+      sourceName: "Dark Blood Heavy Energy Neutralizer"
+    }
+  },
+  {
+    name: "parse outgoing neutralize activity line",
+    line: testData.neutTo,
+    expected: {
+      activity: "neutralize",
+      direction: "given",
+      amount: 405,
+      sourceName: "Dark Blood Heavy Energy Neutralizer"
+    }
+  }
 ] as const;
 
 test("parseListenerName scope: parse name from header of log file", () => {
