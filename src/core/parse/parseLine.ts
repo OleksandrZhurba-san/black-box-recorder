@@ -70,7 +70,22 @@ function parseRemotePayload(payload: string, direction: string): [blob: string, 
   return [blob, source];
 }
 
-function detectDirection(clean: string, activity: ActivityType | null): Direction | null {
+//[ 2025.11.09 17:43:51 ] (combat) 405 GJ energy neutralized  Zarmazd [HYDRA] [GENOS] [Skithblatnir] - - Dark Blood Heavy Energy Neutralizer
+function parseNeutPayload(line: string): [blob: string, source: string] | null {
+  const startToken = "neutralized";
+  const endToken = " - ";
+  const startIndex = line.indexOf(startToken) + 10;
+  const endIndex = line.lastIndexOf(endToken) + 3;
+
+  if (startIndex === -1 || endIndex === -1) return null;
+
+  const blob = line.slice(startIndex, endIndex).trim();
+  const source = line.slice(endIndex).trim();
+
+  return [blob, source];
+}
+
+function detectDirection(clean: string, activity: ActivityType | null, raw?: string): Direction | null {
 
   //damage activity
   if (activity === "damage") {
@@ -91,6 +106,12 @@ function detectDirection(clean: string, activity: ActivityType | null): Directio
   if (activity === "capTransfer") {
     if (clean.includes("transmitted by")) return "taken";
     if (clean.includes("transmitted to")) return "given";
+  }
+
+  //neuts
+  if (activity === "neutralize") {
+    if (raw?.includes("0xffe57f7f")) return "taken";
+    if (raw?.includes("0xff7fffff")) return "given";
   }
 
   return null;
@@ -126,7 +147,7 @@ export function parseLine(line: string, listenerName: string): CombatEvent | nul
   // extract amount number
   const activity: ActivityType | null = detectActivity(payload);
 
-  const direction = detectDirection(payload, activity);
+  const direction = detectDirection(payload, activity, line);
   if (!direction) return null;
 
   let amount = 0;
@@ -163,6 +184,11 @@ export function parseLine(line: string, listenerName: string): CombatEvent | nul
     }
     case "neutralize": {
       amount = Number(payload.split(" ")[0]);
+      const parts = parseNeutPayload(payload);
+      if (!parts) return null;
+      const [blob, source] = parts;
+      sourceName = source;
+      if (direction === "given") pilotName = listenerName;
       break;
     }
     case "capTransfer": {
