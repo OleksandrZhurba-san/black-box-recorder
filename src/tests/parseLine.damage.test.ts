@@ -51,6 +51,26 @@ const cases = [
     }
   },
   {
+    name: "parse remote shield boosted by line",
+    line: testData.boostedBy,
+    expected: {
+      activity: "repair",
+      direction: "taken",
+      amount: 123,
+      sourceName: "Large Remote Shield Booster II",
+    }
+  },
+  {
+    name: "parse remote shield boosted to line",
+    line: testData.boostedTo,
+    expected: {
+      activity: "repair",
+      direction: "given",
+      amount: 57,
+      sourceName: "Large Remote Shield Booster II",
+    }
+  },
+  {
     name: "parse remote cap transfer taken line",
     line: testData.capTransferFor,
     expected: {
